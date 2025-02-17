@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolatore IRPEF 2023 vs 2025</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #2ecc71; /* Verde smeraldo */
+            --background: #f8f9fa;
+            --text: #2c3e50;
+            --highlight: #e74c3c; /* Colore per evidenziare l'imposta più bassa */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--background);
+            padding: 20px;
+        }
+
+        .calculator {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 900px;
+            position: relative;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 30px;
+            font-weight: 500;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            background-color: #27ae60;
+        }
+
+        .results {
+            margin-top: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .result-column {
+            flex: 1;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .highlight {
+            color: var(--secondary);
+            font-weight: 500;
+        }
+
+        .tax-breakdown {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .credits {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #777;
+        }
+
+        .best-option {
+            color: var(--highlight);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>
+            <i class="fas fa-balance-scale"></i>
+            Calcolatore IRPEF 2023 vs 2025
+        </h1>
+        
+        <div class="input-group">
+            <label for="reddito">Reddito lordo annuo (€)</label>
+            <input type="number" id="reddito" placeholder="Inserisci l'importo">
+        </div>
+
+        <button onclick="calcolaIrpef()">Calcola</button>
+
+        <div class="results" id="results" style="display: none;">
+            <!-- Colonna IRPEF 2025 -->
+            <div class="result-column">
+                <h3>IRPEF 2025</h3>
+                <div class="result-item">
+                    <span>Imposta lorda:</span>
+                    <span class="highlight" id="impostaLorda2025">€0</span>
+                </div>
+                <div class="result-item">
+                    <span>Reddito netto:</span>
+                    <span class="highlight" id="redditoNetto2025">€0</span>
+                </div>
+
+                <div class="tax-breakdown">
+                    <div class="result-item">
+                        <span>23% su €0-28.000:</span>
+                        <span id="scaglione1_2025">€0</span>
+                    </div>
+                    <div class="result-item">
+                        <span>35% su €28.001-50.000:</span>
+                        <span id="scaglione2_2025">€0</span>
+                    </div>
+                    <div class="result-item">
+                        <span>43% su €50.001+:</span>
+                        <span id="scaglione3_2025">€0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonna IRPEF 2023 -->
+            <div class="result-column">
+                <h3>IRPEF 2023</h3>
+                <div class="result-item">
+                    <span>Imposta lorda:</span>
+                    <span class="highlight" id="impostaLorda2023">€0</span>
+                </div>
+                <div class="result-item">
+                    <span>Reddito netto:</span>
+                    <span class="highlight" id="redditoNetto2023">€0</span>
+                </div>
+
+                <div class="tax-breakdown">
+                    <div class="result-item">
+                        <span>23% su €0-15.000:</span>
+                        <span id="scaglione1_2023">€0</span>
+                    </div>
+                    <div class="result-item">
+                        <span>25% su €15.001-28.000:</span>
+                        <span id="scaglione2_2023">€0</span>
+                    </div>
+                    <div class="result-item">
+                        <span>35% su €28.001-50.000:</span>
+                        <span id="scaglione3_2023">€0</span>
+                    </div>
+                    <div class="result-item">
+                        <span>43% su €50.001+:</span>
+                        <span id="scaglione4_2023">€0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="credits">
+            by Roberto Z. - upd. 02.2025
+        </div>
+    </div>
+
+    <script>
+        // Aliquote IRPEF 2025
+        const aliquote2025 = [
+            { limite: 28000, aliquota: 0.23 },
+            { limite: 50000, aliquota: 0.35 },
+            { aliquota: 0.43 }
+        ];
+
+        // Aliquote IRPEF 2023
+        const aliquote2023 = [
+            { limite: 15000, aliquota: 0.23 },
+            { limite: 28000, aliquota: 0.25 },
+            { limite: 50000, aliquota: 0.35 },
+            { aliquota: 0.43 }
+        ];
+
+        function formatCurrency(amount) {
+            return '€' + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        }
+
+        function calcolaImposta(reddito, aliquote) {
+            let imposta = 0;
+            let remaining = reddito;
+            let breakdown = new Array(aliquote.length).fill(0);
+
+            for (let i = 0; i < aliquote.length; i++) {
+                const scaglione = aliquote[i];
+                const limitePrecedente = i === 0 ? 0 : aliquote[i - 1].limite;
+                const scaglioneWidth = scaglione.limite ? scaglione.limite - limitePrecedente : Infinity;
+
+                if (remaining > 0) {
+                    const taxable = Math.min(remaining, scaglioneWidth);
+                    breakdown[i] = taxable * scaglione.aliquota;
+                    imposta += breakdown[i];
+                    remaining -= taxable;
+                }
+            }
+
+            return { imposta, breakdown };
+        }
+
+        function calcolaIrpef() {
+            const reddito = parseFloat(document.getElementById('reddito').value);
+
+            if (isNaN(reddito)) return;
+
+            // Calcolo IRPEF 2025
+            const { imposta: imposta2025, breakdown: breakdown2025 } = calcolaImposta(reddito, aliquote2025);
+            const redditoNetto2025 = reddito - imposta2025;
+
+            // Calcolo IRPEF 2023
+            const { imposta: imposta2023, breakdown: breakdown2023 } = calcolaImposta(reddito, aliquote2023);
+            const redditoNetto2023 = reddito - imposta2023;
+
+            // Aggiornamento UI 2025
+            document.getElementById('impostaLorda2025').textContent = formatCurrency(imposta2025);
+            document.getElementById('redditoNetto2025').textContent = formatCurrency(redditoNetto2025);
+            document.getElementById('scaglione1_2025').textContent = formatCurrency(breakdown2025[0]);
+            document.getElementById('scaglione2_2025').textContent = formatCurrency(breakdown2025[1]);
+            document.getElementById('scaglione3_2025').textContent = formatCurrency(breakdown2025[2]);
+
+            // Aggiornamento UI 2023
+            document.getElementById('impostaLorda2023').textContent = formatCurrency(imposta2023);
+            document.getElementById('redditoNetto2023').textContent = formatCurrency(redditoNetto2023);
+            document.getElementById('scaglione1_2023').textContent = formatCurrency(breakdown2023[0]);
+            document.getElementById('scaglione2_2023').textContent = formatCurrency(breakdown2023[1]);
+            document.getElementById('scaglione3_2023').textContent = formatCurrency(breakdown2023[2]);
+            document.getElementById('scaglione4_2023').textContent = formatCurrency(breakdown2023[3]);
+
+            // Evidenzia l'imposta più bassa
+            document.getElementById('impostaLorda2025').classList.remove('best-option');
+            document.getElementById('impostaLorda2023').classList.remove('best-option');
+            if (imposta2025 < imposta2023) {
+                document.getElementById('impostaLorda2025').classList.add('best-option');
+            } else {
+                document.getElementById('impostaLorda2023').classList.add('best-option');
+            }
+
+            // Mostra i risultati
+            document.getElementById('results').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
